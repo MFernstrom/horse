@@ -1,4 +1,5 @@
 unit Horse.Core.RouterTree;
+
 {$IF DEFINED(FPC)}
 {$MODE DELPHI}{$H+}
 {$ENDIF}
@@ -7,9 +8,9 @@ interface
 
 uses
 {$IF DEFINED(FPC)}
-  SysUtils, Generics.Collections, fpHTTP,
+  SysUtils, Generics.Collections, fpHTTP, httpprotocol,
 {$ELSE}
-  System.SysUtils, Web.HTTPApp, System.Generics.Collections,
+  System.SysUtils, System.NetEncoding, Web.HTTPApp, System.Generics.Collections,
 {$ENDIF}
   Horse.HTTP, Horse.Proc, Horse.Commons;
 
@@ -171,10 +172,10 @@ function THorseRouterTree.Execute(ARequest: THorseRequest; AResponse: THorseResp
 var
   LQueue: TQueue<string>;
 begin
-  LQueue := GetQueuePath(THorseHackRequest(ARequest).GetWebRequest.PathInfo, False);
+  LQueue := GetQueuePath({$IF DEFINED(FPC)}ARequest.RawWebRequest.PathInfo{$ELSE}ARequest.RawWebRequest.RawPathInfo{$ENDIF}, False);
   try
     Result := ExecuteInternal(LQueue, {$IF DEFINED(FPC)} StringCommandToMethodType(THorseHackRequest(ARequest).GetWebRequest.Method)
-{$ELSE} THorseHackRequest(ARequest).GetWebRequest.MethodType{$ENDIF}, ARequest, AResponse);
+      {$ELSE} ARequest.RawWebRequest.MethodType{$ENDIF}, ARequest, AResponse);
   finally
     LQueue.Free;
   end;
@@ -353,7 +354,7 @@ begin
   FIndex := -1;
   FIndexCallback := -1;
   if FIsRegex then
-    FRequest.Params.Add(FTag, LCurrent);
+    FRequest.Params.Add(FTag, {$IF DEFINED(FPC)}HTTPDecode(LCurrent){$ELSE}TNetEncoding.URL.Decode(LCurrent){$ENDIF});
 end;
 
 procedure TNextCaller.Next;

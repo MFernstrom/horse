@@ -2,7 +2,7 @@ program WinSvc;
 
 uses
   Vcl.SvcMgr,
-  Main.Service in 'Main.Service.pas' {MainService: TService};
+  Main.Service in 'src\Main.Service.pas' {MainService: TService};
 
 {$R *.RES}
 
@@ -20,7 +20,7 @@ begin
   // Windows 2003 Server.
   //
   // Application.DelayInitialize := True;
-  //
+
   if not Application.DelayInitialize or Application.Installing then
     Application.Initialize;
   Application.CreateForm(TMainService, MainService);

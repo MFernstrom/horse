@@ -3,14 +3,11 @@ unit Horse.Provider.Console;
 interface
 
 {$IF NOT DEFINED(FPC)}
-
-
 uses
   Horse.Provider.Abstract, Horse.Constants, IdHTTPWebBrokerBridge, IdSSLOpenSSL, IdContext,
   System.Classes, System.SyncObjs, System.SysUtils;
 
 type
-
   THorseProviderIOHandleSSL = class;
   THorseProvider<T: class> = class;
 
@@ -87,15 +84,14 @@ type
     class procedure Listen(ACallback: TProc<T>); reintroduce; overload; static;
     class procedure Start; deprecated 'Use Listen instead';
     class procedure Stop; deprecated 'Use StopListen instead';
+    class function IsRunning: Boolean;
     class destructor UnInitialize;
   end;
-
 {$ENDIF}
 
 implementation
 
 {$IF NOT DEFINED(FPC)}
-
 
 uses
   Web.WebReq, Horse.WebModule,
@@ -162,6 +158,11 @@ end;
 class function THorseProvider<T>.GetHost: string;
 begin
   Result := FHost;
+end;
+
+class function THorseProvider<T>.IsRunning: Boolean;
+begin
+  Result := FRunning;
 end;
 
 class function THorseProvider<T>.GetIOHandleSSL: THorseProviderIOHandleSSL;
